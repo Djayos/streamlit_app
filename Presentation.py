@@ -117,6 +117,10 @@ def load_data():
     department_names = df_commune[['code_departement', 'nom_departement']].drop_duplicates().set_index('code_departement').to_dict()['nom_departement']
     
     df2 = df.merge(df_AMMnumber[['numero AMM', 'nom produit', 'fonctions']], left_on='amm', right_on='numero AMM', how='left')
+    df2['fonctions'] = df2['fonctions'].astype(str)
+    # Filter out rows with the specified unwanted values
+    unwanted_pattern = "Adjuvant pour bouillie fongicide | Adjuvant pour bouillie insecticide | Adjuvant pour bouillie herbicide | Adjuvant pour bouillie de régulateur de croissance"
+    df2 = df2[~df2['fonctions'].str.contains(unwanted_pattern)]
     
     return df, df_commune, df_AMMnumber, geo_data, department_names, df2
 
