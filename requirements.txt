@@ -1,4 +1,5 @@
 streamlit
 altair
-pydeck
 geopandas
+matplotlib
+os
