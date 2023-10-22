@@ -2,4 +2,3 @@ streamlit
 altair
 geopandas
 matplotlib
-os
