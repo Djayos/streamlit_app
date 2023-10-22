@@ -302,6 +302,31 @@ ax.set_xlabel("Product")
 plt.xticks(rotation=70)
 st.pyplot(fig)
 
+st.subheader("Distribution of Product Functions")
+st.write("""
+This histogram illustrates the distribution of different pesticides product functions. 
+By adjusting the threshold, users can focus on products that exceed a certain frequency, helping to identify the most common or prevalent product functions in the dataset.
+""")
+# Threshold input
+threshold = st.number_input("Set a threshold for minimum number of products in a category:", min_value=0, value=10)
+
+# Group by "fonctions" column
+category_counts = df2['fonctions'].value_counts()
+
+# Filter categories based on threshold
+filtered_categories = category_counts[category_counts >= threshold]
+
+# Plot
+fig, ax = plt.subplots(figsize=(12, 8))
+filtered_categories.plot(kind='bar', ax=ax)
+ax.set_title("Distribution of Product Categories")
+ax.set_xlabel("Product Categories")
+ax.set_ylabel("Number of Products")
+plt.xticks(rotation=45, ha='right')
+st.pyplot(fig)
+
+
+
 # Conclusion Title
 st.title("Conclusion")
 
