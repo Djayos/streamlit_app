@@ -85,9 +85,9 @@ def load_data():
     df = pd.concat(dfs, ignore_index=True)
 
     
-    df_commune = pd.read_csv("csv\communes-departement-region.csv", delimiter=",")
-    df_AMMnumber = pd.read_csv("csv\produits_Windows-1252.csv", delimiter=";",encoding="Windows-1252")
-    geo_data = gpd.read_file("json\departements.geojson")
+    df_commune = pd.read_csv("csv/communes-departement-region.csv", delimiter=",")
+    df_AMMnumber = pd.read_csv("csv/produits_Windows-1252.csv", delimiter=";",encoding="Windows-1252")
+    geo_data = gpd.read_file("json/departements.geojson")
     
     # remove kg lines
     df = df[df['conditionnement'] != 'kg']
