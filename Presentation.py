@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import geopandas as gpd
+import altair as alt
 
 st.set_page_config(
     page_title="Pesticides Product Analysis",
