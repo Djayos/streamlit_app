@@ -41,3 +41,79 @@ With this application, our primary goals are:
 2. **Identify Key Players**: Highlight the most popular or widely distributed products, aiding stakeholders in making informed decisions.
 3. **Promote Sustainable Practices**: By unveiling consumption insights, we aim to encourage more environmentally conscious choices in the agricultural sector.
 """)
+
+@st.cache_data
+def load_data():
+    years = ["2021", "2020", "2019", "2018"]
+    regions = [
+        "AUVERGNE RHONE ALPES",
+        "BOURGOGNE FRANCHE COMTE",
+        "BRETAGNE",
+        "CENTRE VAL DE LOIRE",
+        "CORSE",
+        "GRAND EST",
+        "GUADELOUPE",
+        "GUYANE",
+        "HAUTS DE FRANCE",
+        "ILE DE FRANCE",
+        "INDETERMINE",
+        "LA REUNION",
+        "MARTINIQUE",
+        "MAYOTTE",
+        "NORMANDIE",
+        "NOUVELLE AQUITAINE",
+        "OCCITANIE",
+        "PAYS DE LA LOIRE",
+        "PROVENCE ALPES COTE D AZUR"
+    ]
+    
+    dfs = []
+    
+    for year in years:
+        for region in regions:
+            file_name = f"BNVD_TRACABILITE_20221016_ACHAT_CP_PRODUIT_{region}_{year}.csv"
+            file_path = f"csv/{file_name}"  # Construct the path directly
+            try:
+                df_region = pd.read_csv(file_path, delimiter=";")
+                dfs.append(df_region)
+            except FileNotFoundError:
+                st.warning(f"File {file_name} not found.")
+                continue
+
+    df = pd.concat(dfs, ignore_index=True)
+
+    
+    df_commune = pd.read_csv("csv\communes-departement-region.csv", delimiter=",")
+    df_AMMnumber = pd.read_csv("csv\produits_Windows-1252.csv", delimiter=";",encoding="Windows-1252")
+    geo_data = gpd.read_file("json\departements.geojson")
+    
+    # remove kg lines
+    df = df[df['conditionnement'] != 'kg']
+
+    # removing lines where code_postal_acheteur is 0
+    df = df[df['code_postal_acheteur'] != 0]
+    # Convert the column to string
+    df['code_postal_acheteur'] = df['code_postal_acheteur'].astype(str)
+    # Ensure each entry has 5 characters, padding with zeros where necessary
+    df['code_postal_acheteur'] = df['code_postal_acheteur'].apply(lambda x: x.zfill(5))
+
+    # remove lines where quantite_produit is nan or 'nc'
+    df['quantite_produit'] = df['quantite_produit'].astype(str)
+    df = df[~df['quantite_produit'].str.contains('[a-zA-Z]')]
+    df['quantite_produit'] = df['quantite_produit'].astype(float)
+    df['quantite_produit'] = df['quantite_produit'].astype(int)
+    
+    # place year column in str format
+    df['annee'] = df['annee'].astype(str)
+
+    # create a new column with the departement code
+    df['department_code'] = df['code_postal_acheteur'].astype(str).str[:2]
+
+    # create dictinnary with the departement code and the region
+    department_names = df_commune[['code_departement', 'nom_departement']].drop_duplicates().set_index('code_departement').to_dict()['nom_departement']
+    
+    df2 = df.merge(df_AMMnumber[['numero AMM', 'nom produit', 'fonctions']], left_on='amm', right_on='numero AMM', how='left')
+    
+    return df, df_commune, df_AMMnumber, geo_data, department_names, df2
+
+df, df_commune, df_AMMnumber, geo_data, department_names, df2 = load_data()
