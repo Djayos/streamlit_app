@@ -1,0 +1,7 @@
+streamlit
+altair
+pydeck
+geopandas
+matplotlib.pyplot
+seaborn
+os
